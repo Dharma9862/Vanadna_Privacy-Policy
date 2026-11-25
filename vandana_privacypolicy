@@ -1,0 +1,123 @@
+package com.example
+
+import android.app.Activity
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.viewinterop.AndroidView
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PrivacyPolicyScreen(
+    onBackClick: () -> Unit
+) {
+    val context = LocalContext.current
+    var showExitDialog by remember { mutableStateOf(false) }
+
+    BackHandler {
+        showExitDialog = true
+    }
+
+    if (showExitDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitDialog = false },
+            title = { Text("Exit Vandana") },
+            text = { Text("Do you want to exit?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showExitDialog = false
+                    (context as? Activity)?.finish()
+                }) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitDialog = false }) {
+                    Text("No")
+                }
+            }
+        )
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Privacy Policy", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = PalmLeafColors.AppBackground,
+                    titleContentColor = PalmLeafColors.PrimaryHeading
+                )
+            )
+        },
+        containerColor = PalmLeafColors.AppBackground
+    ) { innerPadding ->
+        AndroidView(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            factory = { ctx ->
+                WebView(ctx).apply {
+                    webViewClient = WebViewClient()
+                    settings.javaScriptEnabled = true
+                    loadDataWithBaseURL(
+                        null,
+                        htmlPrivacyPolicyContent,
+                        "text/html",
+                        "UTF-8",
+                        null
+                    )
+                }
+            }
+        )
+    }
+}
+
+val htmlPrivacyPolicyContent = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Privacy Policy - Vandana</title>
+        <style>
+            body { font-family: sans-serif; padding: 20px; line-height: 1.6; color: #243D35; background-color: #FFF9ED; margin: 0; }
+            h1 { color: #243D35; border-bottom: 2px solid #9A6945; padding-bottom: 8px; font-size: 22px; }
+            h2 { color: #9A6945; margin-top: 24px; font-size: 18px; }
+            p, li { font-size: 15px; color: #333; }
+            code { background: #f0e6d2; padding: 2px 4px; border-radius: 4px; }
+        </style>
+    </head>
+    <body>
+        <h1>Privacy Policy for Vandana</h1>
+        <p><strong>Last updated:</strong> February 2025</p>
+        <p>Welcome to <strong>Vandana</strong> (Package: <code>com.aistudio.vandana.lqwrty</code>). This Privacy Policy explains how our application handles your information.</p>
+
+        <h2>1. Information Collection</h2>
+        <p>We use <strong>Google AdMob</strong> to display banner and rewarded ads. AdMob may collect device identifiers, IP addresses, and interaction data to serve personalized or non-personalized advertisements.</p>
+        <p>App preferences (such as bookmarks, theme, font size, and script settings) are stored locally on your device via Android SharedPreferences and DataStore.</p>
+
+        <h2>2. How We Use Information</h2>
+        <p>Information collected by AdMob is used for ad delivery and analytics. Local preferences are strictly used to maintain your reading progress and app customization.</p>
+
+        <h2>3. Third-Party Services</h2>
+        <p>Google AdMob privacy practices can be reviewed at <a href="https://policies.google.com/technologies/ads" target="_blank">Google Advertising Policy</a>.</p>
+
+        <h2>4. Contact Us</h2>
+        <p>If you have questions regarding this Privacy Policy, contact us at: <strong>freetubeyoyo@gmail.com</strong></p>
+    </body>
+    </html>
+""".trimIndent()
